@@ -1,24 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import './styles.css';
+import Form from './components/Form';
+import Info from './components/Info';
+import Map from './components/Map';
 import 'leaflet/dist/leaflet.css';
+import './styles.css';
 
-const center = [34.05430, -118.08212];
 const KEY = '610169f491f74c5ea256fc24eb09ca2c';
 
 function App() {
   const [input, setInput] = useState('');
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
-  // const [center, setCenter] = useState([]);
+  const [center, setCenter] = useState([34.05430, -118.08212]);
+  const mapRef = useRef()
 
   useEffect(() => {
     async function fetchData(ip) {
       try {
         const response = await axios.get(`https://api.ipgeolocation.io/ipgeo?apiKey=${KEY}&ip=${ip}`);
         setData(response.data);
+        setCenter([response.data.latitude, response.data.longitude]);
         setError('');
       } catch (err) {
         setError('Failed to fetch data');
@@ -41,70 +43,31 @@ function App() {
     try {
       const response = await axios.get(`https://api.ipgeolocation.io/ipgeo?apiKey=${KEY}&ip=${input}`);
       setData(response.data);
+      setCenter([response.data.latitude, response.data.longitude]);
       setError('');
+
+      if (mapRef.current) {
+        mapRef.current.setView([response.data.latitude, response.data.longitude], 10);
+      }
     } catch (err) {
       setError('Failed to fetch data');
     }
   };
 
-  const customMarkerIcon = L.icon({
-    iconUrl: '/icon-location.svg',
-    iconSize: [35, 41], 
-    iconAnchor: [12, 41],
-    popupAnchor: [0, -41] 
-  });
-
   return (
     <div className='container'>
       <div className='search'>
         <h1 className='title'>IP Address Tracker</h1>
-        <form className='form' onSubmit={handleSearch}>
-          <input
-            type='text'
-            placeholder='Search for any IP address'
-            className={`input ${error ? 'input-error' : ''}`}
-            value={error ? error : input}
-            onChange={(e) => setInput(e.target.value)}
-            onFocus={() => { setError(''); setInput(''); }}
-          />
-          <button className='btn' type='submit'></button>
-        </form>
+        <Form 
+          handleSearch={handleSearch} 
+          error={error} 
+          input={input} 
+          setInput={setInput}
+          setError={setError}
+        />
       </div>
-      {data && 
-        (<div className='info'>
-          <div>
-            <span>IP address</span>
-            <strong>{data.ip}</strong>
-          </div>
-          <div>
-            <span>Location</span>
-            <strong>{`${data.city}, ${data.state_prov}, ${data.country_name}`}</strong>
-          </div>
-          <div>
-            <span>Timezone</span>
-            <strong>{data.time_zone.name}</strong>
-          </div>
-          <div>
-            <span>ISP</span>
-            <strong>{data.isp}</strong>
-          </div>
-        </div>)
-      }
-
-      <MapContainer 
-        center={center} 
-        zoom={10} 
-        className='map'
-      >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        {data && data.latitude && data.longitude && (
-          <Marker position={[data.latitude, data.longitude]} icon={customMarkerIcon}>
-            <Popup>
-              {`${data.city}, ${data.state_prov}, ${data.country_name}`}
-            </Popup>
-          </Marker>
-        )}
-      </MapContainer>
+      {data && <Info data={data} />}
+      <Map data={data} center={center} />
     </div>
   );
 }
