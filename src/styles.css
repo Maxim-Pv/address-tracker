@@ -22,7 +22,7 @@ body {
 .search {
   position: relative;
   width: 100%;
-  height: 40%;
+  height: 350px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -39,15 +39,14 @@ body {
 }
 
 .form {
-  width: 45%;
-  padding: 10px;
-  margin-top: 10px;
+  width: 40%;
+  margin-top: 20px;
   display: flex;
 }
 
 .input {
   width: 91%;
-  padding: 10px;
+  padding: 15px;
   border: none;
   border-radius: 10px 0 0 10px;
   outline: unset;
@@ -85,9 +84,9 @@ body {
 
 .info {
   position: absolute;
-  top: 20%;
+  top: 160px;
   width: 80%;
-  padding: 30px 10px;
+  padding: 40px 10px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   background-color: white;
@@ -120,6 +119,49 @@ body {
   color: red;
 }
 
+@media (max-width: 768px) {
+  .info {
+    width: 95%;
+    padding: 20px 10px;
+  }
+
+  .form {
+    width: 45%;
+    margin-top: 10px;
+  }
+}
+
 @media (max-width: 425px) {
-  
+
+  .search {
+    height: 450px;
+  }
+
+  .title {
+    font-size: 25px;
+  }
+
+  .info {
+    width: 90%;
+    top: 130px;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .info div {
+    align-items: center;
+  }
+
+  .info div:not(:last-child) {
+    border-right: none;
+  }
+
+  .form {
+    width: 90%;
+    margin-top: 20px;
+  }
+
+  .leaflet-touch .leaflet-bar a {
+    display: none;
+  }
 }
